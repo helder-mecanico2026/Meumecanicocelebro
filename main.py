@@ -1,20 +1,28 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List
 
 app = FastAPI()
+
+class Parceiro(BaseModel):
+    cnpj: str
+    nome: str
+    tipo: str
+    whatsapp: str
+    especialidades: List[str]
+
+banco_parceiros = []
 
 @app.get("/")
 def home():
     return {
-        "status": "Cerebro do Meu Mecanico Ativo",
-        "versao": "2026.1",
-        "autor": "Helder",
-        "sistema": "Operacional"
+        "status": "Cerebro v2.0 Ativo",
+        "audio": "Ambiente 10s | Motor 10s-20s"
     }
 
-@app.get("/diagnostico")
-def teste():
-    return {
-        "resultado": "Pronto para receber audio",
-        "chave_seguranca": "meu_mecanico_2026_pro",
-        "instrucao": "Envie o arquivo .WAV para analise"
-    }
+@app.post("/cadastrar_parceiro")
+def cadastrar(parceiro: Parceiro):
+    if len(parceiro.cnpj) < 14:
+        raise HTTPException(status_code=400, detail="CNPJ Invalido")
+    banco_parceiros.append(parceiro)
+    return {"mensagem": "Sucesso!"}
